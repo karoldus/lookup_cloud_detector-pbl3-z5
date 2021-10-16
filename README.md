@@ -6,5 +6,5 @@ Opiekun: mgr inż. Marcin Kołakowski
 
 ## Materiały
 * tablica kanban - zakładka `Projects`
-* komunikacja - czat na Teams
+* czat na Teams
 * notatki - notes OneNote na Teams
