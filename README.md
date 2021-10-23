@@ -5,6 +5,6 @@ Zespół: Michał Ciesielski, Karol Duszczyk, Kamil Kmieć\
 Opiekun: mgr inż. Marcin Kołakowski
 
 ## Materiały
-* tablica kanban - zakładka `Projects`
+* tablica kanban - Trello na Teams
 * czat na Teams
 * notatki - notes OneNote na Teams
