@@ -8,26 +8,25 @@ with serial.Serial('/dev/ttyUSB0', 9600, timeout=None) as ser:
 
     while True:
         try:
-            ser.write(b'AT+ID')
+            ser.write(b'AT+ID\n')
             ser.flush()   
 
-            # v1 - nwm czy działa:
-            # time.sleep(0.2) 
-            # print(ser.is_open)     
-            # stm = ser.readline().decode('ascii')
-            # print("cp4")
-            # print(stm)
+            # v1:
+            time.sleep(1.2)
+            while ser.inWaiting() > 0:  
+                stm = ser.readline().decode('ascii')
+                print(stm)
 
             #v2 - działa, ale ma problem z oczekiwaniem
-            time.sleep(1.5)
-            if ser.inWaiting() > 0:
-                received_data = ser.read()              #read serial port
-                time.sleep(0.03)
-                data_left = ser.inWaiting()             #check for remaining byte
-                received_data += ser.read(data_left)
-                print (received_data)
-            else:
-                print("error oooo")
+            # time.sleep(1.5)
+            # if ser.inWaiting() > 0:
+            #     received_data = ser.read()              #read serial port
+            #     time.sleep(0.03)
+            #     data_left = ser.inWaiting()             #check for remaining byte
+            #     received_data += ser.read(data_left)
+            #     print (received_data)
+            # else:
+            #     print("error oooo")
 
             
             time.sleep(0.1)
