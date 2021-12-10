@@ -35,7 +35,7 @@ def get_device_id(ser): # TO DO
         print(ans)
 
 
-def join_network(ser):                      # co w przypadku, gdy już jest dołączony?
+def join_network(ser):                      # TO DO co w przypadku, gdy już jest dołączony?
     print("JOINING TO NETWORK...")
     ser.reset_input_buffer()
     ser.write(b'AT+JOIN\n')
@@ -56,6 +56,9 @@ def join_network(ser):                      # co w przypadku, gdy już jest doł
             elif "NetID" in ans:
                 print(ans)
                 return 1
+            elif "Joined already" in ans:
+                print("Joined already")
+                return 1                    # TO DO tutaj dać inny kod
     
     print("Timeout joining network.")
     return -1
@@ -76,15 +79,15 @@ def send_mess_string(ser, mess):
             ans = ser.readline().decode('ascii')
             if "Please join network first" in ans:
                 print("Please join network first")
+                #join_network(ser)
                 return 0
             elif "Start" in ans:
                 print("STARTING...")
             elif "Done" in ans:
                 print("SENT")
                 return 1
-            elif "RX" in ans:
+            elif "RX:" in ans:
                 print("DOWNLINK PAYLOAD: ", ans) # TO DO - analyze payload
-                return 1
     
     print("Timeout sending message.")
     return -1
