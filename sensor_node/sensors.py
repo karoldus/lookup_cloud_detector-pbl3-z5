@@ -23,7 +23,7 @@ def ir_read(sensor):
     Parameters: sensor - sensor object
     Returns: temperature
     """
-    return sensor.get_obj_temp()
+    return round(sensor.get_obj_temp(),1)
 
 
 
@@ -44,4 +44,19 @@ def temp_read(sensor):
     Parameters: sensor - sensor object
     Returns: temperature
     """
-    return sensor.get_temperature()
+    return round(sensor.get_temperature(),1)
+
+
+
+##### GETTING AND PREPARING DATA FROM ALL SENSORS #####
+
+def get_all(ir_sensor, temp_sensor):
+    """ 
+    Read temperature from IR and ds18b20 sensors and prepare it to transmission.
+    Parameters: ir_sensor, temp_sensor - sensor objects
+    Returns: coded value of temperatures ready to transmission
+    """
+    ir_val = ir_read(ir_sensor)
+    temp_val = temp_read(temp_sensor) # TO DO: filtering, etc...
+
+    return str([ir_val,temp_val])
