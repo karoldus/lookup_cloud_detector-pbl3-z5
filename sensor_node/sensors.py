@@ -2,7 +2,7 @@
 
 from smbus2 import SMBus
 from mlx90614 import MLX90614
-from w1thermsensor import W1ThermSensor
+from w1thermsensor import W1ThermSensor, Unit
 
 
 ###### SEN0263 - IR SENSOR #####
@@ -23,7 +23,7 @@ def ir_read(sensor):
     Parameters: sensor - sensor object
     Returns: temperature
     """
-    return round(sensor.get_obj_temp(),1)
+    return round(sensor.get_obj_temp()+273.15, 1)
 
 
 
@@ -44,7 +44,7 @@ def temp_read(sensor):
     Parameters: sensor - sensor object
     Returns: temperature
     """
-    return round(sensor.get_temperature(),1)
+    return round(sensor.get_temperature(Unit.KELVIN), 1)
 
 
 
