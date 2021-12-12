@@ -1,0 +1,8 @@
+click==8.0.3
+importlib-metadata==4.8.2
+pkg-resources==0.0.0
+PyMLX90614==0.0.3
+smbus2==0.4.1
+typing-extensions==4.0.1
+w1thermsensor==2.0.0
+zipp==3.6.0
