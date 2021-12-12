@@ -23,7 +23,7 @@ def ir_read(sensor):
     Parameters: sensor - sensor object
     Returns: temperature
     """
-    return round(sensor.get_obj_temp()+273.15, 1)
+    return round(sensor.get_obj_temp(), 1)
 
 
 
@@ -44,7 +44,7 @@ def temp_read(sensor):
     Parameters: sensor - sensor object
     Returns: temperature
     """
-    return round(sensor.get_temperature(Unit.KELVIN), 1)
+    return round(sensor.get_temperature(), 1)
 
 
 
@@ -56,7 +56,7 @@ def get_all(ir_sensor, temp_sensor):
     Parameters: ir_sensor, temp_sensor - sensor objects
     Returns: coded value of temperatures ready to transmission
     """
-    ir_val = int(ir_read(ir_sensor) * 10)
-    temp_val = int(temp_read(temp_sensor) * 10) # TO DO: filtering, etc...
+    ir_val = int((ir_read(ir_sensor) + 100) * 10)
+    temp_val = int((temp_read(temp_sensor) + 100) * 10) # TO DO: filtering, etc...
 
-    return str([ir_val,temp_val])
+    return str(ir_val)+","+str(temp_val)
