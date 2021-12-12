@@ -56,7 +56,7 @@ def get_all(ir_sensor, temp_sensor):
     Parameters: ir_sensor, temp_sensor - sensor objects
     Returns: coded value of temperatures ready to transmission
     """
-    ir_val = ir_read(ir_sensor)
-    temp_val = temp_read(temp_sensor) # TO DO: filtering, etc...
+    ir_val = int(ir_read(ir_sensor) * 10)
+    temp_val = int(temp_read(temp_sensor) * 10) # TO DO: filtering, etc...
 
     return str([ir_val,temp_val])
