@@ -3,6 +3,7 @@
 from smbus2 import SMBus
 from mlx90614 import MLX90614
 from w1thermsensor import W1ThermSensor, Unit
+import sys
 
 
 ###### SEN0263 - IR SENSOR #####
@@ -59,4 +60,6 @@ def get_all(ir_sensor, temp_sensor):
     ir_val = int((ir_read(ir_sensor) + 100) * 10)
     temp_val = int((temp_read(temp_sensor) + 100) * 10) # TO DO: filtering, etc...
 
-    return str(ir_val)+","+str(temp_val)
+    value = ((ir_val << 12) | temp_val)
+
+    return format(value, 'X')
