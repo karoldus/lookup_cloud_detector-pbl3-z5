@@ -1,10 +1,12 @@
 import serial
 import io
 import time
+import json_configuration as json_conf
 
 ANSWER_TIMEOUT = 1.2
 JOINING_TIMEOUT = 20
 MESSAGE_TIMEOUT = 10
+
 
 
 ########## FUNCTIONS ############
@@ -91,8 +93,18 @@ def join_network(ser):
 
 def analyze_downlink(mess):
     x = mess.find("RX:")
-    payload = mess[x+5:-1] # RX: "payload"  ->  payload # w jakim formacie jest payload???
+    payload = mess[x+5:] # RX: "payload"  ->  payload # w jakim formacie jest payload???
+    x = payload.find('"')
+    payload = payload[0:x]
     print("DOWNLINK PAYLOAD: ", payload)
+    if len(payload) != 4:
+        print("Wrong format of downlink message!")
+        return False
+    else:
+        x = int(payload, 16)
+        json_conf.save('PERIOD', x)
+
+    return True
 
 
 def send_mess_string(ser, mess):
@@ -104,6 +116,8 @@ def send_mess_string(ser, mess):
     ser.flush()
 
     start = time.time()
+
+    resp = False
     
     while (time.time() - start < MESSAGE_TIMEOUT):
         while ser.inWaiting() > 0:
@@ -116,14 +130,20 @@ def send_mess_string(ser, mess):
                 print("STARTING...")
             elif "Done" in ans:
                 print("SENT")
-                return 1
+                return 1 if resp != True else 2
             elif "RX:" in ans:
-                print("DOWNLINK MESS: ", ans) # TO DO - analyze payload
-                analyze_downlink(ans)
+                print("DOWNLINK MESS: ", ans) 
+                resp = analyze_downlink(ans) # We want True
     
     print("Timeout sending message.")
-    return -1
+    return -1 if resp != True else 2
 
+'''
+    0 - error
+    1 - OK
+    -1 timeout
+    2 - downlink
+'''
 
 
 def send_mess_hex(ser, mess):
@@ -135,6 +155,8 @@ def send_mess_hex(ser, mess):
     ser.flush()
 
     start = time.time()
+
+    resp = False
     
     while (time.time() - start < MESSAGE_TIMEOUT):
         while ser.inWaiting() > 0:
@@ -147,13 +169,13 @@ def send_mess_hex(ser, mess):
                 print("STARTING...")
             elif "Done" in ans:
                 print("SENT")
-                return 1
+                return 1 if resp != True else 2
             elif "RX:" in ans:
-                print("DOWNLINK MESS: ", ans) # TO DO - analyze payload
-                analyze_downlink(ans)
+                print("DOWNLINK MESS: ", ans) 
+                resp = analyze_downlink(ans) # We want True
     
     print("Timeout sending message.")
-    return -1
+    return -1 if resp != True else 2
 
 
 

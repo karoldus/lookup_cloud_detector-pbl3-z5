@@ -1,7 +1,7 @@
 import sensors
 import lora
 import time
-import json
+import json_configuration as json_conf
 
 if __name__ == '__main__':
     with lora.init_object() as ser:
@@ -16,18 +16,17 @@ if __name__ == '__main__':
             ir_sensor = sensors.ir_init()
             temp_sensor = sensors.temp_init()
 
-            PERIOD = 600
-
-            with open("configuration.json", "r") as read_file:
-                data = json.load(read_file)
-                PERIOD = data['PERIOD']
+            PERIOD = json_conf.read("PERIOD")
 
 
             while True:
-                lora.send_mess_hex(ser, sensors.get_all(ir_sensor,temp_sensor))
+                resp = lora.send_mess_hex(ser, sensors.get_all(ir_sensor,temp_sensor))
+                if resp == 2:
+                    print("nowy period!!!")
+                    PERIOD = json_conf.read("PERIOD")
                 print("idle")
                 time.sleep(PERIOD)
                 
-        except:
-                print("Disconnected")
+        except Exception as e:
+                print("Disconnected", str(e))
                 ser.close()
