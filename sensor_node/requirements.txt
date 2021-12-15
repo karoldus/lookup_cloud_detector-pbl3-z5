@@ -6,3 +6,7 @@ smbus2==0.4.1
 typing-extensions==4.0.1
 w1thermsensor==2.0.0
 zipp==3.6.0
+future==0.18.2
+iso8601==1.0.2
+pyserial==3.5
+PyYAML==6.0
