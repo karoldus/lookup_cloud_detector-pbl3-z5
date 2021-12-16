@@ -1,5 +1,3 @@
-# TO DO: w jakich jednostkach jest temperatura? Format danych. Requirements.
-
 from smbus2 import SMBus
 from mlx90614 import MLX90614
 from w1thermsensor import W1ThermSensor, Unit

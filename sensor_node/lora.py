@@ -48,11 +48,12 @@ def test_device(ser):
     return "Device isn't working"
 
 
-
-
-
-
 def get_device_id(ser): # TO DO
+    """ 
+    Get device and app ID. [TO DO]
+    Parameters: ser - LoRa module object
+    Returns: nothing, prints ID
+    """
     ser.reset_input_buffer()
     ser.write(b'AT+ID\n')
     ser.flush() 
@@ -63,6 +64,11 @@ def get_device_id(ser): # TO DO
 
 
 def join_network(ser):
+    """ 
+    Join to LoRaWAN network.
+    Parameters: ser - LoRa module object
+    Returns: 0 (failed), 1 (success), -1 (timeout)
+    """
     print("JOINING TO NETWORK...")
     ser.reset_input_buffer()
     ser.write(b'AT+JOIN\n')
@@ -92,8 +98,14 @@ def join_network(ser):
 
 
 def analyze_downlink(mess):
+    """ 
+    To use only inside this library.
+    Analyze downlink message and save new configuration to file. [only period - TO DO other configuration]
+    Parameters: ser - LoRa module object
+    Returns: True (saved new configuration), False (wrong format)
+    """
     x = mess.find("RX:")
-    payload = mess[x+5:] # RX: "payload"  ->  payload # w jakim formacie jest payload???
+    payload = mess[x+5:] # RX: "payload"  ->  payload
     x = payload.find('"')
     payload = payload[0:x]
     print("DOWNLINK PAYLOAD: ", payload)
@@ -108,6 +120,11 @@ def analyze_downlink(mess):
 
 
 def send_mess_string(ser, mess):
+    """ 
+    Send string message via LoRa.
+    Parameters: ser - LoRa module object, mess - message in string format
+    Returns: 0 - error, 1 - OK, -1 timeout, 2 - ok and downlink
+    """
     print("SENDING MESSAGE {mess}...")
     mess = str(mess)
     command = 'AT+MSG='+mess+'\n'
@@ -147,6 +164,11 @@ def send_mess_string(ser, mess):
 
 
 def send_mess_hex(ser, mess):
+    """ 
+    Send hex message via LoRa. [TO DO - checking mess format]
+    Parameters: ser - LoRa module object, mess - message in string-hex format
+    Returns: 0 - error, 1 - OK, -1 timeout, 2 - ok and downlink
+    """
     print(f"SENDING MESSAGE {mess}...")
     mess = str(mess)
     command = 'AT+MSGHEX='+mess+'\n'
@@ -179,7 +201,7 @@ def send_mess_hex(ser, mess):
 
 
 
-
+############ EXAMPLE ############
 
 if __name__ == '__main__':
 
