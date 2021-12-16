@@ -155,13 +155,6 @@ def send_mess_string(ser, mess):
     print("Timeout sending message.")
     return -1 if resp != True else 2
 
-'''
-    0 - error
-    1 - OK
-    -1 timeout
-    2 - downlink
-'''
-
 
 def send_mess_hex(ser, mess):
     """ 
