@@ -1,11 +1,11 @@
 import logging
 import signal
-import sys
 import json
 import json_handler
 from time import sleep
 import paho.mqtt.client as mqtt
 import base64
+
 
 
 # Initialize Logging
@@ -14,42 +14,32 @@ logger = logging.getLogger("main")  # Logger for this module
 logger.setLevel(logging.INFO) # Debugging for this file.
 
 
-# Global Variables
-BROKER_HOST = json_handler.configuration_read('BROKER_HOST')
-BROKER_PORT = json_handler.configuration_read('BROKER_PORT')
-CLIENT_ID = json_handler.configuration_read('CLIENT_ID')
-TOPIC = json_handler.configuration_read('TOPIC')
-client = None  # MQTT client instance. See init_mqtt()                                          # (5)
 
 
+######################## MQTT Callbacks ######################
 
-
-
-"""
-MQTT Related Functions and Callbacks
-"""
-def on_connect(client, user_data, flags, connection_result_code):                              # (7)
+def on_connect(client, user_data, flags, connection_result_code):
     """on_connect is called when our program connects to the MQTT Broker."""
 
-    if connection_result_code == 0:                                                            # (8)
-        # 0 = successful connection
+    if connection_result_code == 0: # 0 = successful connection
         logger.info("Connected to MQTT Broker")
     else:
-        # connack_string() gives us a user friendly string for a connection code.
-        logger.error("Failed to connect to MQTT Broker: " + mqtt.connack_string(connection_result_code))
+        logger.error("Failed to connect to MQTT Broker: " + mqtt.connack_string(connection_result_code)) # connack_string() gives us a user friendly string for a connection code.
 
-    # Subscribe to the topic for LED level changes.
-    client.subscribe(TOPIC, qos=2)                                                             # (9)
+    # Subscribe to the topic(s))
+    TOPIC = json_handler.configuration_read('TOPIC')
+    client.subscribe(TOPIC, qos=2) 
+    logger.info("Listening for messages on topic(s): '" + TOPIC)
 
 
 
-def on_disconnect(client, user_data, disconnection_result_code):                               # (10)
-    """Called disconnects from MQTT Broker."""
+def on_disconnect(client, user_data, disconnection_result_code):
+    """on_disconnect is called when our program disconnects from the MQTT Broker."""
     logger.error("Disconnected from MQTT Broker")
 
 
 
-def on_message(client, userdata, msg):                                                         # (11)
+def on_message(client, userdata, msg):
     """Callback called when a message is received on a subscribed topic."""
     logger.debug("Received message for topic {}: {}".format( msg.topic, msg.payload))
 
@@ -68,64 +58,56 @@ def on_message(client, userdata, msg):                                          
         hex_m = [hex(ord(x)) for x in ascii_m]
         print('DANE HEX:', hex_m)
     except json.JSONDecodeError as e:
-        logger.error("JSON Decode Error: ")
+        logger.error("JSON Decode Error: " + e)
 
-    # if msg.topic == TOPIC:                                                                     # (13)
-    #     print("DZIAŁA:", data)                                                                    # (14)
-
-    # else:
-    #     logger.error("Unhandled message topic {} with payload " + str(msg.topic, msg.payload))
-
-
-
-def signal_handler(sig, frame):
-    """Capture Control+C and disconnect from Broker."""
-
-    logger.info("You pressed Control + C. Shutting down, please wait...")
-
-    client.disconnect() # Graceful disconnection.
-    sys.exit(0)
-
-
+    
+######################## MQTT initialization ######################
 
 def init_mqtt():
-    global client
+    """ 
+    Initialize MQTT connection to broker and run loop handling messages.
+    Returns: MQTT Client object
+    """
 
-    # Our MQTT Client. See PAHO documentation for all configurable options.
-    # "clean_session=True" means we don"t want Broker to retain QoS 1 and 2 messages
-    # for us when we"re offline. You"ll see the "{"session present": 0}" logged when
-    # connected.
-    client = mqtt.Client(                                                                      # (15)
+    BROKER_HOST = json_handler.configuration_read('BROKER_HOST')
+    BROKER_PORT = json_handler.configuration_read('BROKER_PORT')
+    CLIENT_ID = json_handler.configuration_read('CLIENT_ID')
+
+    client = mqtt.Client(
         client_id=CLIENT_ID,
         clean_session=False)
 
-    client.username_pw_set(username=json_handler.keys_read("USERNAME"),password=json_handler.keys_read("PASSWORD"))
+    client.username_pw_set(
+        username=json_handler.keys_read("USERNAME"),
+        password=json_handler.keys_read("PASSWORD"))
 
     # Route Paho logging to Python logging.
-    client.enable_logger()                                                                     # (16)
+    client.enable_logger()
 
     # Setup callbacks
-    client.on_connect = on_connect                                                             # (17)
+    client.on_connect = on_connect
     client.on_disconnect = on_disconnect
     client.on_message = on_message
 
     # Connect to Broker.
-    client.connect(BROKER_HOST, BROKER_PORT)                                                   # (18)
+    client.connect(BROKER_HOST, BROKER_PORT)
+
+    # run client in loop - The loop_start() starts a new thread, that calls the loop method at regular intervals for you. It also handles re-connects automatically.
+    client.loop_start()
+
+    return client
 
 
-
-# Initialise Module
-
-init_mqtt()
-
+######################## Example ######################
 
 if __name__ == "__main__":
-    signal.signal(signal.SIGINT, signal_handler)  # Capture Control + C                        # (19)
-    logger.info("Listening for messages on topic '" + TOPIC + "'. Press Control + C to exit.")
-
-    client.loop_start()
+    client = init_mqtt()
+    from signal_handler import signal_handler
+    from functools import partial
+    
+    
+    signal.signal(signal.SIGINT, partial(signal_handler, client, logger))  # Capture Control + C
     
     while(1):
         print("hello")
         sleep(10)
-    # signal.pause()
