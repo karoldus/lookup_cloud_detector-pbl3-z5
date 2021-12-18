@@ -20,6 +20,23 @@ def analyze_message(msg):
     topic = msg.topic
     payload = json.loads(msg.payload)
 
+    sllitted_topic = topic.split('/')
+   
+
+    if 'up' in sllitted_topic[-1]: # downlink in TTS
+        dev_id = sllitted_topic[3]
+        raw_m = payload['uplink_message']['frm_payload']
+        print('DANE PRZED ZDEKODOWANIEM:', raw_m)
+        bytes_m = base64.b64decode(raw_m.encode())
+        int_m = int.from_bytes(bytes_m, byteorder='big')
+        print("DOWNLINK z urzadzenia", dev_id)
+        ir_val = ((int_m >> 12) - 1000)/10.0
+        temp_val = ((int_m % 4096) - 1000)/10.0
+        print(f"\t-IR:", ir_val, ", ds18b20:", temp_val)
+
+    
+
+
 ######################## MQTT Subscribe Callbacks ######################
 
 def on_connect(client, user_data, flags, connection_result_code):
@@ -56,17 +73,6 @@ def on_message(client, userdata, msg):
 
     analyze_message(msg)
     
-    try:
-        data = json.loads(msg.payload)  
-        print('PAYLOAD:', data)
-        raw_m = data['uplink_message']['frm_payload']
-        print('DANE PRZED ZDEKODOWANIEM:', raw_m)
-        ascii_m = base64.b64decode(raw_m.encode('ascii')).decode('ascii')
-        print('DANE ASCII:', ascii_m)
-        hex_m = [hex(ord(x)) for x in ascii_m]
-        print('DANE HEX:', hex_m)
-    except json.JSONDecodeError as e:
-        logger.error("JSON Decode Error: " + e)
 
 
 
@@ -86,7 +92,7 @@ def publish(client, topic, data, qos=0, retain=False): # TO DO: topic -> id of d
         }]
         }'''
     client.publish(topic, payload, qos, retain)
-    
+
 
     
 ######################## MQTT initialization ######################
