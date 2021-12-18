@@ -27,9 +27,12 @@ def on_connect(client, user_data, flags, connection_result_code):
         logger.error("Failed to connect to MQTT Broker: " + mqtt.connack_string(connection_result_code)) # connack_string() gives us a user friendly string for a connection code.
 
     # Subscribe to the topic(s))
-    TOPIC = json_handler.configuration_read('TOPIC')
-    client.subscribe(TOPIC, qos=2) 
-    logger.info("Listening for messages on topic(s): '" + TOPIC)
+    TOPICS = json_handler.configuration_read('TOPICS')
+
+    for topic in TOPICS.keys():
+        client.subscribe(topic, qos=TOPICS[topic]) 
+
+    logger.info("Listening for messages on {topic(s): QoS} '" + str(TOPICS))
 
 
 

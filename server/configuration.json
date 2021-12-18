@@ -2,5 +2,5 @@
     "BROKER_HOST" : "eu1.cloud.thethings.network", 
     "BROKER_PORT" : 1883,
     "CLIENT_ID" : "karolraspidscdc",
-    "TOPIC" : "#"
+    "TOPIC" : {"#" : 2, "abc" : 0}
 }
