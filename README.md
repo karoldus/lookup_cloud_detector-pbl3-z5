@@ -21,3 +21,12 @@ W projekcie wykorzystywane jest oprogramowanie dla węzła pomiarowego (sensor_n
 - json_configuration.py - funkcje pomocnicze do obsługi plików json
 - configuration.json - plik z danymi konfiguracyjnymi
 - requirements.txt - wymagane zależności
+
+### server
+- main.py - główny plik
+- mqtt_client.py - funkcje odpowiedzialne za obsługę MQTT
+- json_handler.py - funkcje pomocnicze do obsługi plików json
+- signal_handler.py - funkcje pomocnicze do obsługi signal (po wciśnięciu CTRL+C)
+- configuration.json - plik z danymi konfiguracyjnymi
+- keys.json - dane (username i password) do połączenia z klientem MQTT **MUSZĄ BYĆ ZACHOWANE W TAJEMNICY** (dlatego tutaj są tylko przykładowe)
+- requirements.txt - wymagane zależności
