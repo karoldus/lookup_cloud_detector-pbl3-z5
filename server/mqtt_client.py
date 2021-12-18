@@ -129,14 +129,3 @@ if __name__ == "__main__":
         print("hello")
         sleep(10)
     # signal.pause()
-
-
-
-
-
-# import paho.mqtt.subscribe as subscribe
-
-# m = subscribe.simple(topics=['#'], hostname="eu1.cloud.thethings.network", port=1883, auth={'username':"clouds-flow-control@ttn",'password':"NNSXS.SELD3UJZ2MFQCAT4FVQKKDOK6FVTPG223PQZ5JQ.63VZIX6WV4XSLKPSNAX6XHWUKRMXH6OYMFAZZEXPWWRUMNLBFEWA"}, msg_count=2)
-# for a in m:
-#     print(a.topic)
-#     print(a.payload)
