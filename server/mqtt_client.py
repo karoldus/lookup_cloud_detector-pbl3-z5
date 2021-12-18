@@ -14,9 +14,13 @@ logger = logging.getLogger("main")  # Logger for this module
 logger.setLevel(logging.INFO) # Debugging for this file.
 
 
+######################## Analyze messeges ######################
 
+def analyze_message(msg):
+    topic = msg.topic
+    payload = json.loads(msg.payload)
 
-######################## MQTT Callbacks ######################
+######################## MQTT Subscribe Callbacks ######################
 
 def on_connect(client, user_data, flags, connection_result_code):
     """on_connect is called when our program connects to the MQTT Broker."""
@@ -27,7 +31,7 @@ def on_connect(client, user_data, flags, connection_result_code):
         logger.error("Failed to connect to MQTT Broker: " + mqtt.connack_string(connection_result_code)) # connack_string() gives us a user friendly string for a connection code.
 
     # Subscribe to the topic(s))
-    TOPICS = json_handler.configuration_read('TOPICS')
+    TOPICS = json_handler.configuration_read('SUB_TOPICS')
 
     for topic in TOPICS.keys():
         client.subscribe(topic, qos=TOPICS[topic]) 
@@ -50,7 +54,8 @@ def on_message(client, userdata, msg):
     print(f"\n\n")
     print("TOPIC: ", msg.topic)
 
-
+    analyze_message(msg)
+    
     try:
         data = json.loads(msg.payload)  
         print('PAYLOAD:', data)
@@ -62,6 +67,26 @@ def on_message(client, userdata, msg):
         print('DANE HEX:', hex_m)
     except json.JSONDecodeError as e:
         logger.error("JSON Decode Error: " + e)
+
+
+
+
+######################## MQTT Publishing ######################
+#https://www.thethingsindustries.com/docs/integrations/mqtt/
+
+def publish(client, topic, data, qos=0, retain=False): # TO DO: topic -> id of device
+    
+    data_64 = base64.b64encode(data.encode()).decode('ascii')
+
+    payload = '''{
+        "downlinks": [{
+            "f_port": 1,
+            "frm_payload": "''' + data_64 + '''",
+            "priority": "NORMAL"
+        }]
+        }'''
+    client.publish(topic, payload, qos, retain)
+    
 
     
 ######################## MQTT initialization ######################

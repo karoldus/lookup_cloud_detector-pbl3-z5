@@ -15,4 +15,5 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, partial(signal_handler, client, logger))  # Capture Control + C
     while(1):
         print("hello")
+        mqtt_client.publish(client, 'v3/clouds-flow-control@ttn/devices/eui-70b3d57ed00486b4/down/replace', '123456', 2)
         time.sleep(10)
