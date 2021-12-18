@@ -1,8 +1,3 @@
-'''
-To Do:
-- timeout
-- write_timeout
-'''
 import serial
 import io
 import time
@@ -35,7 +30,7 @@ def get_device_id(ser): # TO DO
         print(ans)
 
 
-def join_network(ser):                      # TO DO co w przypadku, gdy już jest dołączony?
+def join_network(ser):
     print("JOINING TO NETWORK...")
     ser.reset_input_buffer()
     ser.write(b'AT+JOIN\n')
@@ -63,6 +58,11 @@ def join_network(ser):                      # TO DO co w przypadku, gdy już jes
     print("Timeout joining network.")
     return -1
 
+def analyze_downlink(mess):
+    x = mess.find("RX:")
+    payload = mess[x+5:-1] # RX: "payload"  ->  payload # w jakim formacie jest payload???
+    print("DOWNLINK PAYLOAD: ", payload)
+
 
 def send_mess_string(ser, mess):
     print("SENDING MESSAGE {mess}...")
@@ -79,7 +79,7 @@ def send_mess_string(ser, mess):
             ans = ser.readline().decode('ascii')
             if "Please join network first" in ans:
                 print("Please join network first")
-                #join_network(ser)
+                join_network(ser)
                 return 0
             elif "Start" in ans:
                 print("STARTING...")
@@ -87,7 +87,8 @@ def send_mess_string(ser, mess):
                 print("SENT")
                 return 1
             elif "RX:" in ans:
-                print("DOWNLINK PAYLOAD: ", ans) # TO DO - analyze payload
+                print("DOWNLINK MESS: ", ans) # TO DO - analyze payload
+                analyze_downlink(ans)
     
     print("Timeout sending message.")
     return -1
