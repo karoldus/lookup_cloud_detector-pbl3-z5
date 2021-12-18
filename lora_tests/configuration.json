@@ -1,6 +1,0 @@
-{
-    "LORA_ANSWER_TIMEOUT" : 1.2,
-    "LORA_MESSAGE_TIMEOUT" : 10,
-    "LORA_JOINING_TIMEOUT" : 20,
-    "PERIOD" : 20
-}
