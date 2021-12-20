@@ -23,13 +23,13 @@ def analyze_message(msg):
     sllitted_topic = topic.split('/')
    
 
-    if 'up' in sllitted_topic[-1]: # downlink in TTS
+    if 'up' in sllitted_topic[-1]: # uplink in TTS
         dev_id = sllitted_topic[3]
         raw_m = payload['uplink_message']['frm_payload']
         print('DANE PRZED ZDEKODOWANIEM:', raw_m)
         bytes_m = base64.b64decode(raw_m.encode())
         int_m = int.from_bytes(bytes_m, byteorder='big')
-        print("DOWNLINK z urzadzenia", dev_id)
+        print("UPLINK z urzadzenia", dev_id)
         ir_val = ((int_m >> 12) - 1000)/10.0
         temp_val = ((int_m % 4096) - 1000)/10.0
         print(f"\t-IR:", ir_val, ", ds18b20:", temp_val)
