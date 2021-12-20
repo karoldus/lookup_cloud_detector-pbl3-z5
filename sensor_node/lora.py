@@ -1,7 +1,7 @@
 import serial
 import io
 import time
-import json_configuration as json_conf
+import json_handler as json_conf
 
 ANSWER_TIMEOUT = 1.2
 JOINING_TIMEOUT = 20
@@ -114,7 +114,7 @@ def analyze_downlink(mess):
         return False
     else:
         x = int(payload, 16)
-        json_conf.save('PERIOD', x)
+        json_conf.configuration_save('PERIOD', x)
 
     return True
 
