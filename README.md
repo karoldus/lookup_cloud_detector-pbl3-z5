@@ -18,7 +18,7 @@ W projekcie wykorzystywane jest oprogramowanie dla węzła pomiarowego (sensor_n
 - main.py - główny plik
 - lora.py - funkcje odpowiedzialne za obsługę komunikacji LoRaWAN
 - sensors.py - funkcje odpowiedzialne za obsługę czujników (przykładowe zastosowanie znajduje się w sensors_example.py)
-- json_configuration.py - funkcje pomocnicze do obsługi plików json
+- json_handler.py - funkcje pomocnicze do obsługi plików json
 - configuration.json - plik z danymi konfiguracyjnymi
 - requirements.txt - wymagane zależności
 
