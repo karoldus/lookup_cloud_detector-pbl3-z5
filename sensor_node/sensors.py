@@ -22,7 +22,10 @@ def ir_read(sensor):
     Parameters: sensor - sensor object
     Returns: temperature
     """
-    return round(sensor.get_obj_temp(), 1)
+    try: # there are 2 versions of this library - fix it!
+        return round(sensor.get_obj_temp(), 0)
+    except:
+        return round(sensor.get_object_1(), 0)
 
 
 
@@ -43,7 +46,7 @@ def temp_read(sensor):
     Parameters: sensor - sensor object
     Returns: temperature
     """
-    return round(sensor.get_temperature(), 1)
+    return round(sensor.get_temperature(), 0)
 
 
 
