@@ -159,6 +159,12 @@ def reconnect_network(ser):
 ########## MESSAGE FUNCTIONS ############
 
 def __send_message(ser, command):
+    """ 
+    To use only inside this library.
+    Push command that is send_mess_x command.
+    Parameters: ser - LoRa module object, command [str]
+    Returns: 0 - error, 1 - OK, -1 timeout, 2 - ok and downlink
+    """
     __push_command(command)
 
     start = time.time()
