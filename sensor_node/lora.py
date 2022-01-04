@@ -1,7 +1,7 @@
 import serial
 import io
 import time
-import json_handler as json_conf
+import json_handler as json_handler
 
 ANSWER_TIMEOUT = 1.2
 JOINING_TIMEOUT = 20
@@ -54,9 +54,7 @@ def get_device_id(ser): # TO DO
     Parameters: ser - LoRa module object
     Returns: nothing, prints ID
     """
-    ser.reset_input_buffer()
-    ser.write(b'AT+ID\n')
-    ser.flush() 
+    __push_command(ser, 'AT+ID') 
     time.sleep(ANSWER_TIMEOUT)
     while ser.inWaiting() > 0:  
         ans = ser.readline().decode('ascii')
@@ -67,12 +65,11 @@ def join_network(ser):
     """ 
     Join to LoRaWAN network.
     Parameters: ser - LoRa module object
-    Returns: 0 (failed), 1 (success), -1 (timeout)
+    Returns: 0 (failed), 1 (success), 2 (joined_already) -1 (timeout)
     """
     print("JOINING TO NETWORK...")
-    ser.reset_input_buffer()
-    ser.write(b'AT+JOIN\n')
-    ser.flush()
+
+    __push_command(ser, 'AT+JOIN')
 
     start = time.time()
     
@@ -89,12 +86,64 @@ def join_network(ser):
             elif "NetID" in ans:
                 print(ans)
                 return 1
+            elif "Done" in ans:
+                return 1
             elif "Joined already" in ans:
                 print("Joined already")
-                return 1                    # TO DO tutaj dać inny kod
+                return 2                    # TO DO tutaj dać inny kod
     
     print("Timeout joining network.")
     return -1
+
+def hard_join_network(ser):
+    """ 
+    Join to LoRaWAN network (guaranteed connection).
+    Parameters: ser - LoRa module object
+    Returns: 1 (success), 2 (joined_already)
+    """
+    while(1):
+        r = join_network(ser)
+
+        if r==2 or r==1:
+            return r
+        else:
+            time.sleep(JOINING_TIMEOUT)
+
+
+
+def change_appkey(ser, new_appkey): # need error handling
+    """ 
+    Set new APPKEY.
+    Parameters: ser - LoRa module object, new_appkey [str]
+    Returns: nothing
+    """
+    __push_command(ser, f'AT+KEY=APPKEY, "{new_appkey}"')
+    time.sleep(ANSWER_TIMEOUT)
+
+
+def disconnect_network(ser):
+    """ 
+    Disconnect from network.
+    Parameters: ser - LoRa module object
+    Returns: nothing
+    """
+    __push_command(ser, 'AT+JOIN=FORCE')
+    time.sleep(ANSWER_TIMEOUT)
+
+
+
+def reconnect_network(ser):
+    """ 
+    Disconnect from and connect to network.
+    Parameters: ser - LoRa module object
+    Returns: nothing
+    """
+    disconnect_network(ser)
+    if hard_join_network(ser) == 2:
+        print('hard_joined is 2 in reconnect') # issue #7
+        # disconnect_network(ser)
+        # time.sleep(JOINING_TIMEOUT)
+        # reconnect_network(ser)
 
 
 def analyze_downlink(mess):
@@ -114,7 +163,7 @@ def analyze_downlink(mess):
         return False
     else:
         x = int(payload, 16)
-        json_conf.configuration_save('PERIOD', x)
+        json_handler.configuration_save('PERIOD', x)
 
     return True
 
