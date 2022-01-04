@@ -9,7 +9,8 @@ MESSAGE_TIMEOUT = 10
 
 
 
-########## FUNCTIONS ############
+
+########## SUPPORT FUNCTIONS ############
 
 def __push_command(ser, command):
     """ 
@@ -21,6 +22,35 @@ def __push_command(ser, command):
     ser.write(command.encode())
     ser.flush()
 
+
+
+########## SETTINGS FUNCTIONS ############
+
+def change_appkey(ser, new_appkey): # need error handling
+    """ 
+    Set new APPKEY.
+    Parameters: ser - LoRa module object, new_appkey [str]
+    Returns: nothing
+    """
+    __push_command(ser, f'AT+KEY=APPKEY, "{new_appkey}"')
+    time.sleep(ANSWER_TIMEOUT)
+
+
+def get_device_id(ser): # TO DO
+    """ 
+    Get device and app ID. [TO DO]
+    Parameters: ser - LoRa module object
+    Returns: nothing, prints ID
+    """
+    __push_command(ser, 'AT+ID') 
+    time.sleep(ANSWER_TIMEOUT)
+    while ser.inWaiting() > 0:  
+        ans = ser.readline().decode('ascii')
+        print(ans)
+
+
+
+########## GENERAL (DEVICE) FUNCTIONS ############
 
 def init_object():
     """ 
@@ -48,18 +78,8 @@ def test_device(ser):
     return "Device isn't working"
 
 
-def get_device_id(ser): # TO DO
-    """ 
-    Get device and app ID. [TO DO]
-    Parameters: ser - LoRa module object
-    Returns: nothing, prints ID
-    """
-    __push_command(ser, 'AT+ID') 
-    time.sleep(ANSWER_TIMEOUT)
-    while ser.inWaiting() > 0:  
-        ans = ser.readline().decode('ascii')
-        print(ans)
 
+########## CONNECTION FUNCTIONS ############
 
 def join_network(ser):
     """ 
@@ -90,10 +110,11 @@ def join_network(ser):
                 return 1
             elif "Joined already" in ans:
                 print("Joined already")
-                return 2                    # TO DO tutaj dać inny kod
+                return 2
     
     print("Timeout joining network.")
     return -1
+
 
 def hard_join_network(ser):
     """ 
@@ -110,17 +131,6 @@ def hard_join_network(ser):
             time.sleep(JOINING_TIMEOUT)
 
 
-
-def change_appkey(ser, new_appkey): # need error handling
-    """ 
-    Set new APPKEY.
-    Parameters: ser - LoRa module object, new_appkey [str]
-    Returns: nothing
-    """
-    __push_command(ser, f'AT+KEY=APPKEY, "{new_appkey}"')
-    time.sleep(ANSWER_TIMEOUT)
-
-
 def disconnect_network(ser):
     """ 
     Disconnect from network.
@@ -129,7 +139,6 @@ def disconnect_network(ser):
     """
     __push_command(ser, 'AT+JOIN=FORCE')
     time.sleep(ANSWER_TIMEOUT)
-
 
 
 def reconnect_network(ser):
@@ -145,6 +154,65 @@ def reconnect_network(ser):
         # time.sleep(JOINING_TIMEOUT)
         # reconnect_network(ser)
 
+
+
+########## MESSAGE FUNCTIONS ############
+
+def __send_message(ser, command):
+    __push_command(command)
+
+    start = time.time()
+
+    resp = False
+    
+    while (time.time() - start < MESSAGE_TIMEOUT):
+        while ser.inWaiting() > 0:
+            ans = ser.readline().decode('ascii')
+            if "Please join network first" in ans:
+                print("Please join network first")
+                join_network(ser)
+                return 0
+            elif "Start" in ans:
+                print("STARTING...")
+            elif "Done" in ans:
+                print("SENT")
+                return 1 if resp != True else 2
+            elif "RX:" in ans:
+                print("DOWNLINK MESS: ", ans) 
+                resp = analyze_downlink(ans) # We want True
+    
+    print("Timeout sending message.")
+    return -1 if resp != True else 2
+
+
+def send_mess_string(ser, mess):
+    """ 
+    Send string message via LoRa.
+    Parameters: ser - LoRa module object, mess - message in string format
+    Returns: 0 - error, 1 - OK, -1 timeout, 2 - ok and downlink
+    """
+    print(f"SENDING MESSAGE {mess}...")
+    mess = str(mess)
+    command = 'AT+MSG='+mess
+    
+    return __send_message(ser, command)
+
+
+def send_mess_hex(ser, mess):
+    """ 
+    Send hex message via LoRa. [TO DO - checking mess format]
+    Parameters: ser - LoRa module object, mess - message in string-hex format
+    Returns: 0 - error, 1 - OK, -1 timeout, 2 - ok and downlink
+    """
+    print(f"SENDING MESSAGE {mess}...")
+    mess = str(mess)
+    command = 'AT+MSGHEX='+mess
+    
+    return __send_message(ser, command)
+
+
+
+########## DOWNLINK REACTION FUNCTIONS ############
 
 def analyze_downlink(mess):
     """ 
@@ -168,78 +236,9 @@ def analyze_downlink(mess):
     return True
 
 
-def send_mess_string(ser, mess):
-    """ 
-    Send string message via LoRa.
-    Parameters: ser - LoRa module object, mess - message in string format
-    Returns: 0 - error, 1 - OK, -1 timeout, 2 - ok and downlink
-    """
-    print("SENDING MESSAGE {mess}...")
-    mess = str(mess)
-    command = 'AT+MSG='+mess+'\n'
-    ser.reset_input_buffer()
-    ser.write(command.encode())
-    ser.flush()
-
-    start = time.time()
-
-    resp = False
-    
-    while (time.time() - start < MESSAGE_TIMEOUT):
-        while ser.inWaiting() > 0:
-            ans = ser.readline().decode('ascii')
-            if "Please join network first" in ans:
-                print("Please join network first")
-                join_network(ser)
-                return 0
-            elif "Start" in ans:
-                print("STARTING...")
-            elif "Done" in ans:
-                print("SENT")
-                return 1 if resp != True else 2
-            elif "RX:" in ans:
-                print("DOWNLINK MESS: ", ans) 
-                resp = analyze_downlink(ans) # We want True
-    
-    print("Timeout sending message.")
-    return -1 if resp != True else 2
 
 
-def send_mess_hex(ser, mess):
-    """ 
-    Send hex message via LoRa. [TO DO - checking mess format]
-    Parameters: ser - LoRa module object, mess - message in string-hex format
-    Returns: 0 - error, 1 - OK, -1 timeout, 2 - ok and downlink
-    """
-    print(f"SENDING MESSAGE {mess}...")
-    mess = str(mess)
-    command = 'AT+MSGHEX='+mess+'\n'
-    ser.reset_input_buffer()
-    ser.write(command.encode())
-    ser.flush()
 
-    start = time.time()
-
-    resp = False
-    
-    while (time.time() - start < MESSAGE_TIMEOUT):
-        while ser.inWaiting() > 0:
-            ans = ser.readline().decode('ascii')
-            if "Please join network first" in ans:
-                print("Please join network first")
-                join_network(ser)
-                return 0
-            elif "Start" in ans:
-                print("STARTING...")
-            elif "Done" in ans:
-                print("SENT")
-                return 1 if resp != True else 2
-            elif "RX:" in ans:
-                print("DOWNLINK MESS: ", ans) 
-                resp = analyze_downlink(ans) # We want True
-    
-    print("Timeout sending message.")
-    return -1 if resp != True else 2
 
 
 
