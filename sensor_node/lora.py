@@ -2,6 +2,7 @@ import serial
 import io
 import time
 import json_handler as json_handler
+import message_format
 
 ANSWER_TIMEOUT = 1.2
 JOINING_TIMEOUT = 20
@@ -220,6 +221,23 @@ def send_mess_hex(ser, mess):
 
 ########## DOWNLINK REACTION FUNCTIONS ############
 
+# DOWN_ORDER = {1: ['period', 2], 2: ['sensors', 1], 3: ['appkey', 16], 8: ["binary", 1]}  # order : {name, size} # <------- this could be in json !
+# BINARY_ORDER = {1 : "device-restart", 2 : "send-battery", 3 : "network-restart"}
+
+
+def downlink_period(period):
+    """ 
+    To use only inside this library.
+    Handler of "period" argument of downlink message. Save new period value to configuration.json.
+    Parameters: period - new period value
+    Returns: nothing
+    """
+    print(f"mamy period! {period}")
+    #json_handler.configuration_save('PERIOD', period)
+
+
+DOWNLINK_OPERATIONS = {'period' : downlink_period}
+
 def analyze_downlink(mess):
     """ 
     To use only inside this library.
@@ -227,20 +245,23 @@ def analyze_downlink(mess):
     Parameters: ser - LoRa module object
     Returns: True (saved new configuration), False (wrong format)
     """
+    # 1. from 'RX: "payload"'  to  'payload'
     x = mess.find("RX:")
-    payload = mess[x+5:] # RX: "payload"  ->  payload
+    payload = mess[x+5:]
     x = payload.find('"')
     payload = payload[0:x]
     print("DOWNLINK PAYLOAD: ", payload)
-    if len(payload) != 4:
-        print("Wrong format of downlink message!")
-        return False
-    else:
-        x = int(payload, 16)
-        json_handler.configuration_save('PERIOD', x)
+
+    downlink_obj = message_format.Downlink(payload)
+
+    for k in downlink_obj.get_triggered_keys():
+        if k in DOWNLINK_OPERATIONS.keys():
+            v = downlink_obj.get_key_value(k)
+            DOWNLINK_OPERATIONS[k](v) # run function with argument
+        else:
+            print(f'ERROR: function for "{k}" downlink argument is not defined!')
 
     return True
-
 
 
 
@@ -252,24 +273,26 @@ def analyze_downlink(mess):
 
 if __name__ == '__main__':
 
-    with init_object() as ser:
-        try:
-            print(test_device(ser))
-            get_device_id(ser)
+    analyze_downlink('RX: "030123ab"')
 
-            while join_network(ser) != 1:
-                print(test_device(ser))
-                time.sleep(3)
+    # with init_object() as ser:
+    #     try:
+    #         print(test_device(ser))
+    #         get_device_id(ser)
 
-            num = 1
+    #         while join_network(ser) != 1:
+    #             print(test_device(ser))
+    #             time.sleep(3)
 
-            while True:
+    #         num = 1
 
-                send_mess_string(ser, "hejka_"+str(num))
-                num = num + 1
-                print("idle")
-                time.sleep(60)
+    #         while True:
+
+    #             send_mess_string(ser, "hejka_"+str(num))
+    #             num = num + 1
+    #             print("idle")
+    #             time.sleep(60)
                 
-        except:
-                print("Disconnected")
-                ser.close()
+    #     except:
+    #             print("Disconnected")
+    #             ser.close()
