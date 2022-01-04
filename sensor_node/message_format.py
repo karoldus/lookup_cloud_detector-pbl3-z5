@@ -45,5 +45,5 @@ class Downlink():
 
 
 
-obj = Downlink('8311112203')
-print(obj.get_triggered_keys(), obj.values, obj.get_key_value('sensors'), obj.get_key_value('appkey'))
+# obj = Downlink('8311112203')
+# print(obj.get_triggered_keys(), obj.values, obj.get_key_value('sensors'), obj.get_key_value('appkey'))
