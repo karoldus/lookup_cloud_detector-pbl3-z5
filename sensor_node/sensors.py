@@ -1,7 +1,10 @@
+from time import time, sleep
 from smbus2 import SMBus
 from mlx90614 import MLX90614
 from w1thermsensor import W1ThermSensor, Unit
 import sys
+import json_handler
+import message_format
 
 
 ###### SEN0263 - IR SENSOR #####
@@ -50,17 +53,85 @@ def temp_read(sensor):
 
 
 
+###### BATTERY LEVEL - SIMULATION #####
+
+def battery_read(sensor):
+    """ 
+    FAKE Read battery level.
+    Returns: simulation of battery level
+    """
+    return 50
+
+
+
+'''
+
+################# SENSORS CLASSES #######################
+SENSORS_ORDER = {"ds18b20" : 1, "mlx90614" : 2, "battery" : 7}
+
+
+class Ir_sensor:
+    def __init__(self):
+        self.obj = ir_init()
+        self.order = SENSORS_ORDER["mlx90614"]
+    
+    def read(self):
+        return ir_read(self.obj)
+
+
+class Temp_sensor:
+    def __init__(self):
+        self.obj = temp_init()
+        self.order = SENSORS_ORDER["ds18b20"]
+    
+    def read(self):
+        return temp_read(self.obj)
+
+
+class Battery_sensor:
+    def __init__(self):
+        self.obj = None
+        self.order = SENSORS_ORDER["battery"]
+    
+    def read(self):
+        return battery_read(self.obj)
+
+
+
+SENSORS_CLASSES = {"ds18b20" : Temp_sensor, "mlx90614" : Ir_sensor, "battery" : Battery_sensor}
+
+
+
+
 ##### GETTING AND PREPARING DATA FROM ALL SENSORS #####
+def init_sensors():
+    sensors_to_read = json_handler.configuration_read['sensors_to_read']
+    sensors = []
+
+    for s in SENSORS_ORDER:
+        if sensors_to_read & (1 << (SENSORS_ORDER[s] - 1)):
+            sensors.append(SENSORS_CLASSES[s]())
+
+    return sensors
+
+'''
+
+
 
 def get_all(ir_sensor, temp_sensor):
     """ 
     Read temperature from IR and ds18b20 sensors and prepare it to transmission.
     Parameters: ir_sensor, temp_sensor - sensor objects
-    Returns: coded value of temperatures ready to transmission
+    Returns: coded value from sensors ready to be transmitted
     """
-    ir_val = int((ir_read(ir_sensor) + 100) * 10)
-    temp_val = int((temp_read(temp_sensor) + 100) * 10) # TO DO: filtering, etc...
+    obj = message_format.Uplink()
 
-    value = ((ir_val << 12) | temp_val)
+    ir_val = int(ir_read(ir_sensor) + 100)
+    temp_val = int(temp_read(temp_sensor) + 100) # TO DO: filtering, etc...
 
-    return format(value, 'X')
+    obj.add_value("ambient_temp", temp_val)
+    obj.add_value("sky_temp", ir_val)
+
+    value = obj.format_payload()
+
+    return value
