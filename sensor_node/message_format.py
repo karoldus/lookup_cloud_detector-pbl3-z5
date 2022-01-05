@@ -35,12 +35,22 @@ class Downlink():
                     print("error - this binary value shouldn't be triggered")
 
     def get_key_value(self, key):
+        """ 
+        Get value for key from downlink payload.
+        Parameters: key [str]
+        Returns: value [int]
+        """
         if key in self.values:
             return self.values[key]
         else:
             return False
 
     def get_triggered_keys(self):
+        """ 
+        Get list of all keys in downlink payload.
+        Parameters: nothing
+        Returns: list
+        """
         return list(self.values.keys())
 
 
@@ -53,6 +63,11 @@ class Uplink():
             self.sensors[UP_ORDER[i][0]] = [i, UP_ORDER[i][1]] 
 
     def add_value(self, sensor_name, value:int):
+        """ 
+        Add value from sensor to payload.
+        Parameters: sensor_name {ambient_temp, sky_temp}, value
+        Returns: nothing
+        """
         if sensor_name in self.sensors.keys():
             value_hex = hex(value)[2:]
             if len(value_hex) == self.sensors[sensor_name][1]*2:
@@ -67,6 +82,11 @@ class Uplink():
             print(f'This sensor ({sensor_name}) is not defined in format standard.')
 
     def format_payload(self):
+        """ 
+        Format payload from preverious added values.
+        Parameters: nothing
+        Returns: formatted value [hex in str]
+        """
         if bool(self.values) != False:          #is not empty
             header = 0
             payload = ''
