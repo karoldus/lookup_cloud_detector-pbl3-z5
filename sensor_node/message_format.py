@@ -43,7 +43,55 @@ class Downlink():
         return list(self.values.keys())
 
 
+UP_ORDER = {1: ['ambient_temp', 1], 2: ['sky_temp', 1]}
 
 
-# obj = Downlink('8311112203')
-# print(obj.get_triggered_keys(), obj.values, obj.get_key_value('sensors'), obj.get_key_value('appkey'))
+class Uplink():
+    def __init__(self):
+        self.values = {} # {'name' : 'value_hex', 'ambient_temp' : '5a'}
+        self.sensors = {} # {'name': [order, length]}
+        for i in UP_ORDER.keys():
+            self.sensors[UP_ORDER[i][0]] = [i, UP_ORDER[i][1]] 
+
+    def add_value(self, sensor_name, value:int):
+        if sensor_name in self.sensors.keys():
+            value_hex = hex(value)[2:]
+            if len(value_hex) == self.sensors[sensor_name][1]*2:
+                self.values[sensor_name] = value_hex
+            elif len(value_hex) < self.sensors[sensor_name][1]*2: # add zeros if length is too short
+                while len(value_hex) < self.sensors[sensor_name][1]*2:
+                    value_hex = '0' + value_hex
+                self.values[sensor_name] = value_hex
+            else: #length is too long
+                print(f'This sensor ({sensor_name}) has defined other payload length')
+        else:
+            print(f'This sensor ({sensor_name}) is not defined in format standard.')
+
+    def format_payload(self):
+        if bool(self.values) != False:      #is not empty
+            header = 0
+            payload = ''
+            for k in self.values.keys():    # k is sensor name
+                header = header | 1 << (self.sensors[k][0]-1)
+            
+            for place in range(1,9):
+                if place in UP_ORDER.keys():
+                    if UP_ORDER[place][0] in self.values.keys(): # UP_ORDER[place][0] is sensor name
+                        header = (header | (1 << (place-1)))
+                        payload = payload + self.values[UP_ORDER[place][0]]
+
+            header_hex = hex(header)[2:]
+            if len(header_hex) == 1:
+                header_hex = '0' + header_hex # make header length 1 byte
+            payload = header_hex + payload
+            return payload
+        else:
+            return None
+
+
+
+# obj = Uplink()
+# obj.add_value('ambient_temp', 123)
+# obj.add_value('sky_tempdvf', 123)
+# print(obj.values)
+# print(obj.format_payload())
