@@ -3,10 +3,12 @@ import io
 import time
 import json_handler as json_handler
 import message_format
+import os
 
 ANSWER_TIMEOUT = 1.2
 JOINING_TIMEOUT = 20
 MESSAGE_TIMEOUT = 10
+MIN_PERIOD = 20
 
 
 
@@ -186,7 +188,7 @@ def __send_message(ser, command):
                 return 1 if resp != True else 2
             elif "RX:" in ans:
                 print("DOWNLINK MESS: ", ans) 
-                resp = analyze_downlink(ans) # We want True
+                resp = analyze_downlink(ser, ans) # We want True
     
     print("Timeout sending message.")
     return -1 if resp != True else 2
@@ -221,11 +223,7 @@ def send_mess_hex(ser, mess):
 
 ########## DOWNLINK REACTION FUNCTIONS ############
 
-# DOWN_ORDER = {1: ['period', 2], 2: ['sensors', 1], 3: ['appkey', 16], 8: ["binary", 1]}  # order : {name, size} # <------- this could be in json !
-# BINARY_ORDER = {1 : "device-restart", 2 : "send-battery", 3 : "network-restart"}
-
-
-def downlink_period(period):
+def downlink_period(ser, period):
     """ 
     To use only inside this library.
     Handler of "period" argument of downlink message. Save new period value to configuration.json.
@@ -233,16 +231,40 @@ def downlink_period(period):
     Returns: nothing
     """
     print(f"mamy period! {period}")
-    #json_handler.configuration_save('PERIOD', period)
+    if period > MIN_PERIOD:
+        json_handler.configuration_save('PERIOD', period)
 
 
-DOWNLINK_OPERATIONS = {'period' : downlink_period}
+def downlink_sensors(ser, sensors):
+    print('sensors from downlink', sensors)
+    #json_handler.configuration_save('sensors_to_read', sensors)                                 <--------- uncomment
 
-def analyze_downlink(mess):
+
+def downlink_appkey(ser, appkey_int):
+    appkey_hex = hex(appkey_int)[2:0]
+    print(appkey_hex)
+    #change_appkey(ser, appkey_hex)                                 <--------- uncomment
+
+
+def device_restart(*args):
+    print('reboot from downlink')
+    #os.system('sudo reboot')                                 <--------- uncomment
+
+
+def downlink_network_restart(ser, *args):
+    print('reconnect network from downlink')
+    #reconnect_network(ser)                                 <--------- uncomment
+
+
+# Assign functions to downlink messages
+DOWNLINK_OPERATIONS = {'period': downlink_period, 'sensors': downlink_sensors, 'appkey': downlink_appkey, 'device-restart': device_restart, "network-restart": downlink_network_restart}
+
+
+def analyze_downlink(ser, mess):
     """ 
     To use only inside this library.
     Analyze downlink message and save new configuration to file. [only period - TO DO other configuration]
-    Parameters: ser - LoRa module object
+    Parameters: ser - LoRa module object, mess - line from LoRa module with 'RX:'
     Returns: True (saved new configuration), False (wrong format)
     """
     # 1. from 'RX: "payload"'  to  'payload'
@@ -257,13 +279,11 @@ def analyze_downlink(mess):
     for k in downlink_obj.get_triggered_keys():
         if k in DOWNLINK_OPERATIONS.keys():
             v = downlink_obj.get_key_value(k)
-            DOWNLINK_OPERATIONS[k](v) # run function with argument
+            DOWNLINK_OPERATIONS[k](ser, v) # run function with argument
         else:
             print(f'ERROR: function for "{k}" downlink argument is not defined!')
 
     return True
-
-
 
 
 
