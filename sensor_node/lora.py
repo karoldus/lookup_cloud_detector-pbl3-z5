@@ -231,7 +231,7 @@ def downlink_period(ser, period):
 
 def downlink_sensors(ser, sensors):
     print('sensors from downlink', sensors)
-    json_handler.configuration_save('SENSORS_TO_READ', sensors)                                 <--------- uncomment
+    json_handler.configuration_save('SENSORS_TO_READ', sensors)
 
 
 def downlink_appkey(ser, appkey_int):
@@ -242,12 +242,12 @@ def downlink_appkey(ser, appkey_int):
 
 def device_restart(*args):
     print('reboot from downlink')
-    #os.system('sudo reboot')                                 <--------- uncomment
+    os.system('sudo reboot')
 
 
 def downlink_network_restart(ser, *args):
     print('reconnect network from downlink')
-    reconnect_network(ser)                                 <--------- uncomment
+    reconnect_network(ser)
 
 
 # Assign functions to downlink messages
