@@ -1,4 +1,4 @@
 {
-    "period" : 30,
-    "sensors_to_read": 3
+    "PERIOD" : 30,
+    "SENSORS_TO_READ": 3
 }
