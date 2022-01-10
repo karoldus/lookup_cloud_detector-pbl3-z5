@@ -236,8 +236,9 @@ def downlink_sensors(ser, sensors):
 
 def downlink_appkey(ser, appkey_int):
     appkey_hex = hex(appkey_int)[2:0]
+    print("Zmiana apppkkeeeyyyy")
     print(appkey_hex)
-    #change_appkey(ser, appkey_hex)                                 <--------- uncomment
+    change_appkey(ser, appkey_hex)
 
 
 def device_restart(*args):
