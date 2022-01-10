@@ -160,7 +160,7 @@ def __send_message(ser, command):
     Parameters: ser - LoRa module object, command [str]
     Returns: 0 - error, 1 - OK, -1 timeout, 2 - ok and downlink
     """
-    __push_command(command)
+    __push_command(ser, command)
 
     start = time.time()
 
@@ -223,13 +223,15 @@ def downlink_period(ser, period):
     Returns: nothing
     """
     print(f"mamy period! {period}")
-    if period > MIN_PERIOD:
-        json_handler.configuration_save('PERIOD', period)
+    if period < MIN_PERIOD:
+        period = MIN_PERIOD
+        
+    json_handler.configuration_save('PERIOD', period)
 
 
 def downlink_sensors(ser, sensors):
     print('sensors from downlink', sensors)
-    #json_handler.configuration_save('sensors_to_read', sensors)                                 <--------- uncomment
+    json_handler.configuration_save('SENSORS_TO_READ', sensors)                                 <--------- uncomment
 
 
 def downlink_appkey(ser, appkey_int):
@@ -245,7 +247,7 @@ def device_restart(*args):
 
 def downlink_network_restart(ser, *args):
     print('reconnect network from downlink')
-    #reconnect_network(ser)                                 <--------- uncomment
+    reconnect_network(ser)                                 <--------- uncomment
 
 
 # Assign functions to downlink messages
