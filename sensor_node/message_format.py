@@ -2,6 +2,8 @@ DOWN_ORDER = {1: ['period', 2], 2: ['sensors', 1], 3: ['appkey', 16], 8: ["binar
 BINARY_ORDER = {1 : "device-restart", 2 : "send-battery", 3 : "network-restart"}
 UP_ORDER = {1: ['ambient_temp', 1], 2: ['sky_temp', 1]}
 
+# if length > 4B value is saved as hex str, not int.
+
 class Downlink():
     def __init__(self, payload):
         self.triggered = 0
@@ -19,7 +21,10 @@ class Downlink():
                                 if len(payload) >= le:
                                     v = payload[0:le]
                                     payload = payload[le:]
-                                    self.values[DOWN_ORDER[i][0]] = int(v,16)
+                                    if le > 8:
+                                        self.values[DOWN_ORDER[i][0]] = v
+                                    else:
+                                        self.values[DOWN_ORDER[i][0]] = int(v,16)
                                 else:
                                     print('ERROR: Wrong payload format - too short')
                             elif le == 0:

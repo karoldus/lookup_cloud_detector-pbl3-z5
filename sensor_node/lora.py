@@ -234,8 +234,7 @@ def downlink_sensors(ser, sensors):
     json_handler.configuration_save('SENSORS_TO_READ', sensors)
 
 
-def downlink_appkey(ser, appkey_int):
-    appkey_hex = hex(appkey_int)[2:0]
+def downlink_appkey(ser, appkey_hex):
     print("Zmiana apppkkeeeyyyy")
     print(appkey_hex)
     change_appkey(ser, appkey_hex)
