@@ -132,16 +132,7 @@ def hard_join_network(ser):
             return r
         else:
             time.sleep(JOINING_TIMEOUT)
-
-
-def disconnect_network(ser):
-    """ 
-    Disconnect from network.
-    Parameters: ser - LoRa module object
-    Returns: nothing
-    """
-    __push_command(ser, 'AT+JOIN=FORCE')
-    time.sleep(ANSWER_TIMEOUT)
+  
 
 
 def reconnect_network(ser):
@@ -150,7 +141,8 @@ def reconnect_network(ser):
     Parameters: ser - LoRa module object
     Returns: nothing
     """
-    disconnect_network(ser)
+    __push_command(ser, 'AT+JOIN=FORCE')
+    time.sleep(ANSWER_TIMEOUT)
     if hard_join_network(ser) == 2:
         print('hard_joined is 2 in reconnect') # issue #7
         # disconnect_network(ser)
