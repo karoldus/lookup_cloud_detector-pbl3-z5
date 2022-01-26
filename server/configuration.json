@@ -2,5 +2,5 @@
     "BROKER_HOST" : "eu1.cloud.thethings.network", 
     "BROKER_PORT" : 1883,
     "CLIENT_ID" : "karolraspidscdc",
-    "SUB_TOPICS" : {"#" : 2, "abc" : 0}
+    "TOPIC_BASE" : "v3/clouds-flow-control@ttn/devices"
 }

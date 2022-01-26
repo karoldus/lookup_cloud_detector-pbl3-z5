@@ -7,6 +7,8 @@ import paho.mqtt.client as mqtt
 import base64
 
 
+# Global consts
+TOPICS = {"UP": json_handler.configuration_read("TOPIC_BASE")}
 
 # Initialize Logging
 logging.basicConfig(level=logging.WARNING)  # Global logging configuration
@@ -14,7 +16,7 @@ logger = logging.getLogger("main")  # Logger for this module
 logger.setLevel(logging.INFO) # Debugging for this file.
 
 
-######################## Analyze messeges ######################
+######################## Analyze messages ######################
 
 def analyze_message(msg):
     topic = msg.topic
@@ -48,12 +50,11 @@ def on_connect(client, user_data, flags, connection_result_code):
         logger.error("Failed to connect to MQTT Broker: " + mqtt.connack_string(connection_result_code)) # connack_string() gives us a user friendly string for a connection code.
 
     # Subscribe to the topic(s))
-    TOPICS = json_handler.configuration_read('SUB_TOPICS')
+    TOPICS_S = json_handler.configuration_read('TOPIC_BASE')
 
-    for topic in TOPICS.keys():
-        client.subscribe(topic, qos=TOPICS[topic]) 
+    client.subscribe(TOPICS_S+"/#", qos=2) 
 
-    logger.info("Listening for messages on {topic(s): QoS} '" + str(TOPICS))
+    logger.info(f'Listening for messages from {TOPICS_S}')
 
 
 
