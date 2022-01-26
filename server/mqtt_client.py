@@ -8,7 +8,9 @@ import base64
 
 
 # Global consts
-TOPICS = {"UP": json_handler.configuration_read("TOPIC_BASE")}
+# TOPICS = {"UP": json_handler.configuration_read("TOPIC_BASE")+"/+/up",
+#         "JOIN": json_handler.configuration_read("TOPIC_BASE")+"/+/join",
+#         "DOWN": json_handler.configuration_read("TOPIC_BASE")+"/insert_dev_id/down/replace"}
 
 # Initialize Logging
 logging.basicConfig(level=logging.WARNING)  # Global logging configuration
@@ -22,19 +24,52 @@ def analyze_message(msg):
     topic = msg.topic
     payload = json.loads(msg.payload)
 
-    sllitted_topic = topic.split('/')
+    splitted_topic = topic.split('/')
+
+    extracted_data = {}
+
+    extracted_data['dev_id'] = splitted_topic[3]
    
 
-    if 'up' in sllitted_topic[-1]: # uplink in TTS
-        dev_id = sllitted_topic[3]
+    if 'up' in splitted_topic[-1]: # uplink in TTS
+        extracted_data["message_type"] = 'uplink'
+        # extracted_data["timestamp"] = payload['uplink_message']["rx_metadata"][0]
+        
         raw_m = payload['uplink_message']['frm_payload']
-        print('DANE PRZED ZDEKODOWANIEM:', raw_m)
+        #print('DANE PRZED ZDEKODOWANIEM:', raw_m)
         bytes_m = base64.b64decode(raw_m.encode())
         int_m = int.from_bytes(bytes_m, byteorder='big')
-        print("UPLINK z urzadzenia", dev_id)
-        ir_val = ((int_m >> 12) - 1000)/10.0
-        temp_val = ((int_m % 4096) - 1000)/10.0
-        print(f"\t-IR:", ir_val, ", ds18b20:", temp_val)
+
+        #payload to list of ints (1 element = 1 byte)
+        tab_m = []
+        while int_m > 0:
+            tab_m.insert(0,int_m%256)
+            int_m = int(round(int_m / 256, 0))
+
+
+        UP_ORDER = {1: ['ambient_temp', 1], 2: ['sky_temp', 1]}
+
+        fields = tab_m.pop(0)
+
+        for i in range(1,9):
+            if (fields & (1 << (i-1))): # if i byte in payload is not empty
+                if i in UP_ORDER.keys(): # if i in list of uplink elements
+                    t = 0
+                    e = UP_ORDER[i]
+                    for j in range(e[1]):
+                        t = t + tab_m.pop(0)
+                    extracted_data[e[0]] = t
+
+        if 'ambient_temp' in extracted_data.keys():
+            extracted_data['ambient_temp'] = extracted_data['ambient_temp'] - 100
+
+        if 'sky_temp' in extracted_data.keys():
+            extracted_data['sky_temp'] = extracted_data['sky_temp'] - 100
+        
+        print(extracted_data)      
+        return extracted_data
+    else:
+        return {}
 
     
 
@@ -54,7 +89,7 @@ def on_connect(client, user_data, flags, connection_result_code):
 
     client.subscribe(TOPICS_S+"/#", qos=2) 
 
-    logger.info(f'Listening for messages from {TOPICS_S}')
+    logger.info(f'Listening for messages from {TOPICS_S+"/#"}')
 
 
 
