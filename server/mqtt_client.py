@@ -5,7 +5,7 @@ import json_handler
 from time import sleep
 import paho.mqtt.client as mqtt
 import base64
-
+import influx_bridge as db
 
 # Global consts
 # TOPICS = {"UP": json_handler.configuration_read("TOPIC_BASE")+"/+/up",
@@ -65,6 +65,19 @@ def analyze_message(msg):
 
         if 'sky_temp' in extracted_data.keys():
             extracted_data['sky_temp'] = extracted_data['sky_temp'] - 100
+
+        if 'ambient_temp' in extracted_data.keys() and 'sky_temp' in extracted_data.keys():
+            extracted_data['delta_temp'] = extracted_data['ambient_temp'] - extracted_data['sky_temp']
+            if extracted_data['delta_temp'] < 5:
+                extracted_data['status'] = 0
+            elif extracted_data['delta_temp'] < 20:
+                extracted_data['status'] = 1
+            elif extracted_data['delta_temp'] < 40:
+                extracted_data['status'] = 2
+            else:
+                extracted_data['status'] = 3
+
+            db.send_data_to_influxdb(extracted_data)
         
         print(extracted_data)      
         return extracted_data
@@ -174,7 +187,8 @@ if __name__ == "__main__":
     client = init_mqtt()
     from signal_handler import signal_handler
     from functools import partial
-    
+
+    db.init_influxdb_database()
     
     signal.signal(signal.SIGINT, partial(signal_handler, client, logger))  # Capture Control + C
     
