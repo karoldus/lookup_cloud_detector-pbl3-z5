@@ -29,3 +29,18 @@ def init_influxdb_database():
     if len(list(filter(lambda x: x['name'] == INFLUXDB_DATABASE, databases))) == 0:
         influxdb_client.create_database(INFLUXDB_DATABASE)
     influxdb_client.switch_database(INFLUXDB_DATABASE)
+
+
+#EXAMPLE
+
+# init_influxdb_database()
+# data = influxdb_client.query('SELECT "status" FROM "uplink" WHERE time > now() - 7d  GROUP BY "dev_id" ORDER BY DESC LIMIT 1')
+# ret = []
+# for s in data.raw['series']:
+#     ret.append([s['tags']['dev_id'], s['values'][0][1], s['values'][0][0]])
+
+# print(ret)
+
+
+# for point in data.get_points():
+#     print(point)
