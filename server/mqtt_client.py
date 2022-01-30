@@ -24,6 +24,8 @@ def analyze_message(msg):
     topic = msg.topic
     payload = json.loads(msg.payload)
 
+    print(payload)
+
     splitted_topic = topic.split('/')
 
     extracted_data = {}
@@ -69,13 +71,13 @@ def analyze_message(msg):
         if 'ambient_temp' in extracted_data.keys() and 'sky_temp' in extracted_data.keys():
             extracted_data['delta_temp'] = extracted_data['ambient_temp'] - extracted_data['sky_temp']
             if extracted_data['delta_temp'] < 5:
-                extracted_data['status'] = 0
-            elif extracted_data['delta_temp'] < 20:
-                extracted_data['status'] = 1
-            elif extracted_data['delta_temp'] < 40:
-                extracted_data['status'] = 2
-            else:
                 extracted_data['status'] = 3
+            elif extracted_data['delta_temp'] < 20:
+                extracted_data['status'] = 2
+            elif extracted_data['delta_temp'] < 40:
+                extracted_data['status'] = 1
+            else:
+                extracted_data['status'] = 0
 
             db.send_data_to_influxdb(extracted_data)
         
