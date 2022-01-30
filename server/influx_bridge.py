@@ -8,11 +8,23 @@ INFLUXDB_DATABASE = 'lookup'
 influxdb_client = InfluxDBClient(INFLUXDB_ADDRESS, 8086, INFLUXDB_USER, INFLUXDB_PASSWORD, None)
 
 def send_data_to_influxdb(data):
+    d = influxdb_client.query( f"SELECT * FROM locations WHERE dev_id = '{data['dev_id']}'")
+
+    long = 0
+    lat = 0
+    print("cp1")
+    for point in d.get_points():
+        long = point['longitude']
+        lat = point['latitude']
+
     json_body = [
         {
-            'measurement': "uplink",
+            'measurement': "uplink3",
             'tags': {
-                'dev_id': data["dev_id"]
+                'dev_id': data["dev_id"],
+                # 'geohash' : "9wvfgzurfzb"
+                'latitude' : lat,
+                'longitude': long
             },
             'fields': {
                 'status': data['status'],
@@ -40,6 +52,8 @@ def init_influxdb_database():
 #     ret.append([s['tags']['dev_id'], s['values'][0][1], s['values'][0][0]])
 
 # print(ret)
+
+# data = influxdb_client.query(f"SELECT * FROM locations WHERE dev_id = 'fake-1'")
 
 
 # for point in data.get_points():
