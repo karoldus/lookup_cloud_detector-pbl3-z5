@@ -1,5 +1,6 @@
 from influxdb import InfluxDBClient
 
+############## GLOBAL DB CONSTS - CHANGE THEM TO YOUR OWN ###################
 INFLUXDB_ADDRESS = '192.168.0.109'
 INFLUXDB_USER = 'chmury'
 INFLUXDB_PASSWORD = 'chmury4all'
@@ -7,7 +8,15 @@ INFLUXDB_DATABASE = 'lookup'
 
 influxdb_client = InfluxDBClient(INFLUXDB_ADDRESS, 8086, INFLUXDB_USER, INFLUXDB_PASSWORD, None)
 
+############################## FUNCTIONS ##############################
+
 def send_data_to_influxdb(data):
+    """
+    Save data from uplink message to InfluxDB.
+    Parameters: data [dict] like: {'dev_id': 'sth', 'status': 0, 
+        "sky_temp": 2, "ambient_temp": 22, "delta_temp": 20}
+    Returns: nothing
+    """
     d = influxdb_client.query( f"SELECT * FROM locations WHERE dev_id = '{data['dev_id']}'")
 
     long = 0
@@ -22,7 +31,7 @@ def send_data_to_influxdb(data):
             'measurement': "uplink3",
             'tags': {
                 'dev_id': data["dev_id"],
-                # 'geohash' : "9wvfgzurfzb"
+                # 'geohash' : "9wvfgzurfzb" # if you want to use geohash instead of lat & long
                 'latitude' : lat,
                 'longitude': long
             },
@@ -37,6 +46,7 @@ def send_data_to_influxdb(data):
     influxdb_client.write_points(json_body)
 
 def init_influxdb_database():
+    """ Init connection to InfluxDB """
     databases = influxdb_client.get_list_database()
     if len(list(filter(lambda x: x['name'] == INFLUXDB_DATABASE, databases))) == 0:
         influxdb_client.create_database(INFLUXDB_DATABASE)
