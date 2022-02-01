@@ -1,0 +1,94 @@
+{
+    "datasource": null,
+    "circleMaxSize": "10",
+    "circleMinSize": "10",
+    "colors": [
+      "#C0D8FF",
+      "#8AB8FF",
+      "#3274D9",
+      "#1F60C4"
+    ],
+    "decimals": 0,
+    "esMetric": "Count",
+    "gridPos": {
+      "h": 21,
+      "w": 24,
+      "x": 0,
+      "y": 0
+    },
+    "hideEmpty": false,
+    "hideZero": false,
+    "id": 2,
+    "initialZoom": "11",
+    "locationData": "table",
+    "mapCenter": "custom",
+    "mapCenterLatitude": "52.230688",
+    "mapCenterLongitude": "21.01197",
+    "maxDataPoints": 1,
+    "mouseWheelZoom": true,
+    "options": {},
+    "showLegend": true,
+    "stickyLabels": false,
+    "tableQueryOptions": {
+      "geohashField": "geohash",
+      "labelField": "dev_id",
+      "latitudeField": "latitude",
+      "longitudeField": "longitude",
+      "metricField": "status",
+      "queryType": "coordinates"
+    },
+    "targets": [
+      {
+        "groupBy": [
+          {
+            "params": [
+              "dev_id"
+            ],
+            "type": "tag"
+          },
+          {
+            "params": [
+              "latitude"
+            ],
+            "type": "tag"
+          },
+          {
+            "params": [
+              "longitude"
+            ],
+            "type": "tag"
+          }
+        ],
+        "measurement": "uplink3",
+        "orderByTime": "ASC",
+        "policy": "default",
+        "query": "SELECT last(\"status\") as \"status\" FROM \"uplink3\" WHERE $timeFilter GROUP BY \"dev_id\", \"latitude\", \"longitude\"",
+        "rawQuery": true,
+        "refId": "A",
+        "resultFormat": "table",
+        "select": [
+          [
+            {
+              "params": [
+                "status"
+              ],
+              "type": "field"
+            },
+            {
+              "params": [],
+              "type": "last"
+            }
+          ]
+        ],
+        "tags": []
+      }
+    ],
+    "thresholds": "1,2,3",
+    "timeFrom": null,
+    "timeShift": null,
+    "title": "Dashboard",
+    "type": "grafana-worldmap-panel",
+    "unitPlural": "",
+    "unitSingle": "",
+    "valueName": "total"
+  }
