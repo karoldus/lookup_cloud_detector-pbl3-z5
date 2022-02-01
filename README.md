@@ -28,6 +28,9 @@ W projekcie wykorzystywane jest oprogramowanie dla węzła pomiarowego (sensor_n
 - `requirements.txt` - wymagane zależności
 - `node_init.bash` - skrypt instalujący wymagane biblioteki i konfigurujący wstępne ustawienia modułu LoRa-E5 mini (kod nieukończony z braku czasu, ale nie jest wymagany do działania)
 
+## The Things Stack
+W pliku `payload_formatter.js` znajduje się formater, którego można użyć w TTS do rozkodowywania wiadomości uplink, aby w konsoli TTS widzieć wartości temperatury (nie trzeba tego robić).
+
 ### server
 - `main.py` - główny plik
 - `mqtt_client.py` - funkcje odpowiedzialne za obsługę MQTT (Paho) i przetwarzanie otrzymanych wiadomości uplink (z braku czasu nie zaimplementowano innych typów wiadomości oraz wysyłanie wiadomości downlink jest zaimplementowane słabo)
@@ -46,4 +49,4 @@ Dodatkowo na serwerze powinny być zainstalowane i skonfigurowane:
 
 > Istalacja i konfiguracja tych narzędzi była przeprowadzana wg. [tej instrukcji](https://diyi0t.com/visualize-mqtt-data-with-influxdb-and-grafana/).
 
-Część rozwiązań nie jest skończona i wymagałaby dopracowania, gdyby projekt był dalej rozwijany.
+Kod był tworzony tak, aby było go łatwo rozbudowywać o dalsze funkcjonalności. Część rozwiązań nie jest skończona i wymagałaby dopracowania, gdyby projekt był dalej rozwijany.
