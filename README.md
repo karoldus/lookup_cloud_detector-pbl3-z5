@@ -8,7 +8,7 @@ Opiekun: mgr inż. Marcin Kołakowski
 ## O projekcie
 Celem projektu jest stworzenie rozproszonego systemu IoT umożliwiającego ocenę stopnia zachmurzenia nieba na danym obszarze. Obecnie taka ocena pokrywy chmur jest dokonywana poprzez analizę zdjęć satelitarnych lub wykorzystanie zaawansowanych czujników laserowych. Zdjęcia satelitarne wydają się wystarczającym źródłem informacji dla działań związanych z prognozowaniem pogody, jednak są niewystarczająco szczegółowe, aby spełnić wymagania osób zajmujących się zawodowo lub hobbystycznie obserwacjami astronomicznymi. Duża dokładność pomiarów dokonanych na obszarze prowadzenia takich obserwacji jest kwestią istotną, ponieważ nawet niewielkie zachmurzenie może skutecznie uniemożliwić prawidłowe ich wykonanie. Problem ten mogłoby rozwiązać opracowanie sieci czujników zbierających dane o aktualnie panujących warunkach pogodowych na danym obszarze połączonej z aplikacją prezentującą użytkownikowi interesujące go informacje w przystępnej formie.
 
-W projekcie wykorzystywane są technologie: LoRaWAN, MQTT
+W projekcie wykorzystywane są technologie, narzędzia i języki: Python, LoRaWAN (The Things Stack), MQTT (Paho), InfluxDB, Grafana.
 
 Szczegółowe informacje można znaleźć w dokumentacji projektu.
 
@@ -20,7 +20,7 @@ W projekcie wykorzystywane jest oprogramowanie dla węzła pomiarowego (sensor_n
 - `lora.py` - funkcje odpowiedzialne za obsługę komunikacji LoRaWAN
 - `sensors.py` - funkcje odpowiedzialne za obsługę czujników (przykładowe zastosowanie znajduje się w `sensors_example.py`)
 - `sensors_test.py` - program wykorzystywany podczas testowania czujników, zapisuje wyniki do katalogu `data`
-- `message_format.py` - funkcje do kodowania widomości uplink i rozkodowywania wiadomości downlink wg. formatu opisanego w raporcie III
+- `message_format.py` - funkcje do kodowania widomości uplink i rozkodowywania wiadomości downlink wg. formatu opisanego w raporcie 3
 - `json_handler.py` - funkcje pomocnicze do obsługi plików json
 - `configuration.json` - plik z danymi konfiguracyjnymi
 - `requirements.txt` - wymagane zależności
@@ -36,10 +36,12 @@ W projekcie wykorzystywane jest oprogramowanie dla węzła pomiarowego (sensor_n
 - `configuration.json` - plik z danymi konfiguracyjnymi
 - `keys.json` - dane (username i password) do połączenia z klientem MQTT **MUSZĄ BYĆ ZACHOWANE W TAJEMNICY** (dlatego tutaj są tylko przykładowe)
 - `requirements.txt` - wymagane zależności
+-  `grafana_panel.json` - ustawienia panelu w Grafanie
 
 Dodatkowo na serwerze powinny być zainstalowane i skonfigurowane:
 - baza danych InfluxDB. Nazwę bazy, adres ip i dane dostępowe należy umieścić w pliku `influx_bridge.py`. 
+- Grafana (narzędzie do wizualizacji danych) z ustawionym panelem zgodnie z plikiem `grafana_panel.json`
 
 > Istalacja i konfiguracja tych narzędzi była przeprowadzana wg. [tej instrukcji](https://diyi0t.com/visualize-mqtt-data-with-influxdb-and-grafana/).
 
-Część rozwiązań nie jest dobra...
+Część rozwiązań nie jest skończona i wymagałaby dopracowania, gdyby projekt był dalej rozwijany.
