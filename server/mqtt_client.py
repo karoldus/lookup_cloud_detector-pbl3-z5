@@ -21,6 +21,7 @@ logger.setLevel(logging.INFO) # Debugging for this file.
 ######################## Analyze messages ######################
 
 def analyze_message(msg):
+    """ Analyze message (only uplink) from MQTT (I know, this function is bad)"""
     topic = msg.topic
     payload = json.loads(msg.payload)
 
@@ -35,10 +36,8 @@ def analyze_message(msg):
 
     if 'up' in splitted_topic[-1]: # uplink in TTS
         extracted_data["message_type"] = 'uplink'
-        # extracted_data["timestamp"] = payload['uplink_message']["rx_metadata"][0]
         
         raw_m = payload['uplink_message']['frm_payload']
-        #print('DANE PRZED ZDEKODOWANIEM:', raw_m)
         bytes_m = base64.b64decode(raw_m.encode())
         int_m = int.from_bytes(bytes_m, byteorder='big')
 
