@@ -12,6 +12,8 @@ W projekcie wykorzystywane są technologie, narzędzia i języki: Python, LoRaWA
 
 Szczegółowe informacje można znaleźć w dokumentacji projektu.
 
+![image](https://user-images.githubusercontent.com/43970304/151995187-c69b519c-d302-428d-97f4-19f94b06221f.png)
+
 ## Oprogramowanie
 W projekcie wykorzystywane jest oprogramowanie dla węzła pomiarowego (sensor_node) i serwera (server).
 
