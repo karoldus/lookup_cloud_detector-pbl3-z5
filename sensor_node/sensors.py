@@ -62,61 +62,7 @@ def battery_read(sensor):
     """
     return 50
 
-
-
-'''
-
-################# SENSORS CLASSES #######################
-SENSORS_ORDER = {"ds18b20" : 1, "mlx90614" : 2, "battery" : 7}
-
-
-class Ir_sensor:
-    def __init__(self):
-        self.obj = ir_init()
-        self.order = SENSORS_ORDER["mlx90614"]
-    
-    def read(self):
-        return ir_read(self.obj)
-
-
-class Temp_sensor:
-    def __init__(self):
-        self.obj = temp_init()
-        self.order = SENSORS_ORDER["ds18b20"]
-    
-    def read(self):
-        return temp_read(self.obj)
-
-
-class Battery_sensor:
-    def __init__(self):
-        self.obj = None
-        self.order = SENSORS_ORDER["battery"]
-    
-    def read(self):
-        return battery_read(self.obj)
-
-
-
-SENSORS_CLASSES = {"ds18b20" : Temp_sensor, "mlx90614" : Ir_sensor, "battery" : Battery_sensor}
-
-
-
-
-##### GETTING AND PREPARING DATA FROM ALL SENSORS #####
-def init_sensors():
-    sensors_to_read = json_handler.configuration_read['sensors_to_read']
-    sensors = []
-
-    for s in SENSORS_ORDER:
-        if sensors_to_read & (1 << (SENSORS_ORDER[s] - 1)):
-            sensors.append(SENSORS_CLASSES[s]())
-
-    return sensors
-
-'''
-
-
+###### GETTING AND PREPARING DATA FROM ALL SENSORS #####
 
 def get_all(ir_sensor, temp_sensor):
     """ 
