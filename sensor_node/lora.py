@@ -285,9 +285,9 @@ def analyze_downlink(ser, mess):
 
 ############ EXAMPLE ############
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
-    analyze_downlink('RX: "030123ab"')
+#     analyze_downlink('RX: "030123ab"')
 
     # with init_object() as ser:
     #     try:

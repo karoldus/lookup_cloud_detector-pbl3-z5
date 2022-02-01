@@ -1,10 +1,17 @@
+# Functions to code uplink and decode downlink messages.
+
+################### MESSAGE FORMAT ORDER (details in report 3) ####################
 DOWN_ORDER = {1: ['period', 2], 2: ['sensors', 1], 3: ['appkey', 16], 8: ["binary", 1]}  # order : {name, size} # <------- this could be in json !
 BINARY_ORDER = {1 : "device-restart", 2 : "send-battery", 3 : "network-restart"}
 UP_ORDER = {1: ['ambient_temp', 1], 2: ['sky_temp', 1]}
 
-# if length > 4B value is saved as hex str, not int.
+# important! if length > 4B value is saved as hex str, not int.
+
+
+##################################### DOWNLINK ####################################
 
 class Downlink():
+    """ Downlink message object"""
     def __init__(self, payload):
         self.triggered = 0
         self.values = {}
@@ -59,8 +66,10 @@ class Downlink():
         return list(self.values.keys())
 
 
+##################################### UPLINK ######################################
 
 class Uplink():
+    """ Uplink message object """
     def __init__(self):
         self.values = {}    # {'name' : 'value_hex', 'ambient_temp' : '5a'}
         self.sensors = {}   # {'name': [order, length]}
@@ -113,7 +122,7 @@ class Uplink():
             return None
 
 
-
+# EXAMPLE:
 # obj = Uplink()
 # obj.add_value('ambient_temp', 123)
 # obj.add_value('sky_tempdvf', 123)
